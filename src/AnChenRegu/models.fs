@@ -27,21 +27,21 @@ type LeaveRecord = {
     Amount: TimeSpan
     ApprBy: string
     MoreComments: string
-    Id: Guid
+    Id: int
 }
 
 type LateRecord = {
     Employee: string
     Period: TimePoint
     Amount: TimeSpan
-    Id: Guid
+    Id: int
 }
 
 type OvertimeWork = {
     Employee: string
     Period: TimePoint
     Reason: string
-    Id: Guid
+    Id: int
 }
 
 // 时间先后的约束
@@ -65,9 +65,31 @@ static member (+) (a, b) =
 static member Zero = { Amount = TimeSpan.Zero; Period = { Start = DateTime.MaxValue; End = DateTime.MinValue } }
 end
 
+[<CLIMutable>]
+type Person = {
+    Name: string
+    DisplayName: string
+    HireDate: DateTime
+}
+
+type AnnualVacationQuota = {
+    Employee: string
+    Amount: TimeSpan
+    Year: int
+    Id: int    
+}
+
+type LId =
+    | LeaveId of int
+    | LateId of int
+
+type OId =
+    | OvertimeWorkId of int
+    | AnnualVacationId of int
+
 type WriteOffHours = {
-    LId: Guid
-    OId: Guid
+    LId: LId
+    OId: OId
     Hours: ClaimableHours
 }
 
@@ -79,6 +101,7 @@ type AccountingItem =
     | L of LeaveRecord
     | LA of LateRecord
     | O of OvertimeWork
+    | A of AnnualVacationQuota
 
 
 type AccountingAggregate = {
@@ -97,6 +120,7 @@ type AccountingAggregate = {
                 | L l -> l.Amount
                 | LA la -> la.Amount
                 | O o -> o.Period.End - o.Period.Start
+                | A a -> a.Amount
             totalAmount = writeOffs
 end
 

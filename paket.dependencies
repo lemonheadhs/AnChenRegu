@@ -24,3 +24,10 @@ group scripts
 
     nuget Dapper
     nuget System.Data.SQLite
+    nuget Dapper.FastCrud
+    nuget SqlFrags
+group scriptPatch
+    source https://api.nuget.org/v3/index.json
+    framework: netstandard2.0
+
+    nuget NETStandard.Library.NETFramework

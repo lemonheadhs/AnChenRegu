@@ -80,7 +80,7 @@ let test2() =
 test2()
 
 let test3() =
-    let sql = [ Leaves --> ["*"] ] |> Frags.Emit SqlSyntax.Any
+    let sql = [ Leaves --> ["*"]; WhereS "Id = 1" ] |> Frags.Emit SqlSyntax.Any
     let conn = createConn()
     conn.Query<Leave>(sql)
 

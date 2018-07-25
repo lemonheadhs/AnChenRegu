@@ -8,6 +8,9 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
+open AnChenRegu.Models
+open Giraffe.HttpStatusCodeHandlers
+open Handlers
 
 // ---------------------------------
 // Models
@@ -61,7 +64,26 @@ let webApp =
             choose [
                 route "/" >=> indexHandler "world"
                 routef "/hello/%s" indexHandler
+                subRoute "/api" 
+                    (choose [
+                        subRoute "/overview" (text "")
+                        subRoute "/employee/name" (text "")
+                        subRoute "/employee/name/leaveRecord" (text "")
+                        subRoute "/employee/name/leaveRecord/id" (text "")
+                        subRoute "/employee/name/overtimeWork" (text "")
+                        subRoute "/employee/name/overtimeWork/id" (text "")
+                    ])
             ]
+        POST >=> subRoute "/api"
+            (choose [
+                subRoute "/admin"
+                    (choose [
+                        route "/leaveRecord/add" >=> saveLeaveRecord
+                        route "/overtimeWork/add" >=> bindJson<OvertimeWork> (fun ow -> Successful.OK "")
+                        route "/lateRecord/add" >=> bindJson<LateRecord> (fun ow -> Successful.OK "")
+                        route "/writeOffHours/add" >=> bindJson<WriteOffHours> (fun ow -> Successful.OK "")
+                    ])
+            ])
         setStatusCode 404 >=> text "Not Found" ]
 
 // ---------------------------------

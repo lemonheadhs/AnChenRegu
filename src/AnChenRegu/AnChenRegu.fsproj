@@ -9,6 +9,7 @@
     <Compile Include="models.fs" />
     <Compile Include="dbModels.fs" />
     <Compile Include="dbAccess.fs" />
+    <Compile Include="handlers.fs" />
     <Compile Include="Program.fs" />
     <None Include="web.config" />
     <Content Include="WebRoot/**/*">

@@ -8,6 +8,7 @@ open System.Data
 open FSharp.Control.Tasks.ContextInsensitive
 open Models
 open DBModels
+open CustomTypes
 
 let createAndOpenConn connStr =
     let conn = new SqliteConnection(connStr)
@@ -37,7 +38,14 @@ let insert<'a> excludes =
         [ table.Insert pairs ] |> Frags.Emit SqlSyntax.Any
     fun (x: 'a) (factory: IConnectionFactory) ->
         use conn = factory.Create()
-        conn.ExecuteAsync(insertSql, x)
+        task { 
+            try
+                let! i = conn.ExecuteAsync(insertSql, x)
+                return Ok i
+            with
+                | ex -> return Error (DbError ex)
+        }
+        
 
 let update<'a> excludes whereClause =
     let tableName = getRecordTypeName<'a>
@@ -48,7 +56,13 @@ let update<'a> excludes whereClause =
         [ table.Update pairs; whereClause ] |> Frags.Emit SqlSyntax.Any
     fun (x: 'a) (factory: IConnectionFactory) ->
         use conn = factory.Create()
-        conn.ExecuteAsync(updateSql, x)
+        task { 
+            try
+                let! i = conn.ExecuteAsync(updateSql, x)
+                return Ok i
+            with
+                | ex -> return Error (DbError ex)
+        }
 
 let delete<'a> whereClause =
     let tableName = getRecordTypeName<'a>
@@ -71,11 +85,11 @@ let querySingle<'a> whereClause =
                 let! l = conn.QueryAsync<'a>(selectSql, x)                
                 let r = 
                     match l |> Seq.length with
-                    | 1 -> Some (Seq.head l)
-                    | _ -> None
+                    | 1 -> Ok (Seq.head l)
+                    | _ -> Error (DbError (exn "fail to find only one record"))
                 return r
             with
-                | ex -> return None            
+                | ex -> return Error (DbError ex)            
         }
 
 let query<'a> whereClause =
@@ -88,9 +102,9 @@ let query<'a> whereClause =
         task {
             try
                 let! r = conn.QueryAsync<'a>(selectSql, x)
-                return r
+                return Ok r
             with
-                | ex -> return Seq.empty
+                | ex -> return Error (DbError ex)
         }
 
 
@@ -151,4 +165,50 @@ let addOvertimeWork (x: OvertimeWork) =
           Reason = x.Reason
           Id = 0 }
     insertOvertimeWork dbRec
+
+// ---------------------------
+// LateRecord Store
+// ---------------------------
+
+let private insertLateRecord (x: TB_Late) = insert<TB_Late> ["Id"] x
+
+let addLateRecord (x:LateRecord) =
+    let dbRec =
+        { Employee = x.Employee
+          StartTime = x.Period.Start
+          EndTime = x.Period.End
+          Amount = x.Amount.ToString()
+          Id = 0 }
+    insertLateRecord dbRec
+
+// ---------------------------
+// LateRecord Store
+// ---------------------------
+
+let private insertWriteOffHours (x: TB_WriteOffHours) = insert<TB_WriteOffHours> [] x
+
+let addWriteOffHours (x:WriteOffHours) =
+    let srcInfo =
+        match x.OId with
+        | OvertimeWorkId id -> id, "OvertimeWork"
+        | AnnualVacationId id -> id, "AnnualVacation"
+    let destInfo =
+        match x.LId with
+        | LeaveId id -> id, "Leave"
+        | LateId id -> id, "Late"
+    let dbRec =
+        { SourceId = fst srcInfo
+          SourceKind = snd srcInfo
+          DestId = fst destInfo
+          DestKind = snd destInfo
+          StartTime = x.Hours.Period.Start
+          EndTime = x.Hours.Period.End
+          Amount = (x.Hours.Amount.ToString()) }
+    insertWriteOffHours dbRec
+
+
+
+
+
+
 

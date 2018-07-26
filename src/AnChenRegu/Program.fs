@@ -11,6 +11,7 @@ open Giraffe
 open AnChenRegu.Models
 open Giraffe.HttpStatusCodeHandlers
 open Handlers
+open DBAccess
 
 // ---------------------------------
 // Models
@@ -79,9 +80,9 @@ let webApp =
                 subRoute "/admin"
                     (choose [
                         route "/leaveRecord/add" >=> saveLeaveRecord
-                        route "/overtimeWork/add" >=> bindJson<OvertimeWork> (fun ow -> Successful.OK "")
-                        route "/lateRecord/add" >=> bindJson<LateRecord> (fun ow -> Successful.OK "")
-                        route "/writeOffHours/add" >=> bindJson<WriteOffHours> (fun ow -> Successful.OK "")
+                        route "/overtimeWork/add" >=> saveOvertimeWork
+                        route "/lateRecord/add" >=> saveLateRecord
+                        route "/writeOffHours/add" >=> saveWriteOffHours
                     ])
             ])
         setStatusCode 404 >=> text "Not Found" ]
@@ -116,6 +117,10 @@ let configureApp (app : IApplicationBuilder) =
 let configureServices (services : IServiceCollection) =
     services.AddCors()    |> ignore
     services.AddGiraffe() |> ignore
+    let factory = 
+        { new IConnectionFactory with 
+            member Create("") = null }
+    services.Add<ICoonectionFactory>(factory) |> ignore
 
 let configureLogging (builder : ILoggingBuilder) =
     let filter (l : LogLevel) = l.Equals LogLevel.Error

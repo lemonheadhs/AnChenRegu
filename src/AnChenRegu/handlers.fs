@@ -83,3 +83,32 @@ let saveWriteOffHours (next: HttpFunc) (ctx: HttpContext) =
         return! handler next ctx
     }
 
+// --------------------
+
+type Month =
+    | Jan = 1
+    | Feb = 2
+    | Mar = 3
+    | Appr = 4
+    | May = 5
+    | Jun = 6
+    | Jul = 7
+    | Aug = 8
+    | Seb = 9
+    | Oct = 10
+    | Nov = 11
+    | Des = 12
+
+type Week =
+    | One = 1
+    | Two = 2
+    | Three = 3
+    | Four = 4
+    | Five = 5
+
+type MonthWeek = {
+    name: string
+}
+
+
+

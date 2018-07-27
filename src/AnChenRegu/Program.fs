@@ -68,11 +68,12 @@ let webApp =
                 subRoute "/api" 
                     (choose [
                         subRoute "/overview" (text "")
-                        subRoute "/employee/name" (text "")
-                        subRoute "/employee/name/leaveRecord" (text "")
-                        subRoute "/employee/name/leaveRecord/id" (text "")
-                        subRoute "/employee/name/overtimeWork" (text "")
-                        subRoute "/employee/name/overtimeWork/id" (text "")
+                        subRoutef "/employee/%s" (fun employeeName ->
+                            choose [
+                                route "/leaveRecord"
+                                route "/overtimeWork"
+                                routex "(/?)"
+                            ])
                     ])
             ]
         POST >=> subRoute "/api"

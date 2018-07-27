@@ -9,6 +9,7 @@ open FSharp.Control.Tasks.ContextInsensitive
 open Models
 open DBModels
 open CustomTypes
+open Microsoft.Extensions.Options
 
 let createAndOpenConn connStr =
     let conn = new SqliteConnection(connStr)
@@ -28,6 +29,11 @@ let getRecordPropNames<'T> =
 type IConnectionFactory =
     abstract member Create: unit -> IDbConnection
 
+type ConnectionFactory(dbConfigAccessor: IOptions<DatabaseConfig>) =
+    interface IConnectionFactory with
+        member this.Create() =
+            let connStr = dbConfigAccessor.Value.ConnectionString
+            createAndOpenConn connStr
 
 let insert<'a> excludes =
     let tableName = getRecordTypeName<'a>

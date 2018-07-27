@@ -12,6 +12,8 @@ nuget Microsoft.Extensions.Logging.Console
 nuget Microsoft.Extensions.Logging.Debug
 nuget Microsoft.AspNetCore.Authentication.Cookies
 nuget Microsoft.Extensions.DependencyInjection
+nuget Microsoft.Extensions.Configuration.Json
+nuget Microsoft.Extensions.Options.ConfigurationExtensions
 nuget Giraffe
 nuget Microsoft.NET.Test.Sdk
 nuget xunit

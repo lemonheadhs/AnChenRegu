@@ -9,6 +9,11 @@ type Errors =
     | IOError of Exception
     | NetworkError of Exception
 
+[<CLIMutable>]
+type DatabaseConfig = {
+    ConnectionString: string
+}
+
 module TaskResult =
 
     type TaskResult<'a, 'b> = Task<Result<'a, 'b>>

@@ -8,10 +8,10 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
-open AnChenRegu.Models
-open Giraffe.HttpStatusCodeHandlers
 open Handlers
 open DBAccess
+open CustomTypes
+open Microsoft.Extensions.Configuration
 
 // ---------------------------------
 // Models
@@ -105,6 +105,14 @@ let configureCors (builder : CorsPolicyBuilder) =
            .AllowAnyHeader()
            |> ignore
 
+let appConfigSource (ctx: WebHostBuilderContext) (config: IConfigurationBuilder) =
+    let env = ctx.HostingEnvironment
+
+    config.AddJsonFile("appsettings.json", optional = false, reloadOnChange = true)
+          .AddJsonFile("appsettings." + env.EnvironmentName + ".json", optional = true, reloadOnChange = true)
+          .Build() |> ignore
+    
+
 let configureApp (app : IApplicationBuilder) =
     let env = app.ApplicationServices.GetService<IHostingEnvironment>()
     (match env.IsDevelopment() with
@@ -114,13 +122,12 @@ let configureApp (app : IApplicationBuilder) =
         .UseStaticFiles()
         .UseGiraffe(webApp)
 
-let configureServices (services : IServiceCollection) =
+let configureServices (ctx: WebHostBuilderContext) (services : IServiceCollection) =
     services.AddCors()    |> ignore
     services.AddGiraffe() |> ignore
-    let factory = 
-        { new IConnectionFactory with 
-            member Create("") = null }
-    services.Add<ICoonectionFactory>(factory) |> ignore
+    services.AddOptions() |> ignore
+    services.Configure<DatabaseConfig>("database", ctx.Configuration) |> ignore
+    services.AddTransient<IConnectionFactory, ConnectionFactory>() |> ignore
 
 let configureLogging (builder : ILoggingBuilder) =
     let filter (l : LogLevel) = l.Equals LogLevel.Error
@@ -135,6 +142,7 @@ let main _ =
         .UseContentRoot(contentRoot)
         .UseIISIntegration()
         .UseWebRoot(webRoot)
+        .ConfigureAppConfiguration(appConfigSource)
         .Configure(Action<IApplicationBuilder> configureApp)
         .ConfigureServices(configureServices)
         .ConfigureLogging(configureLogging)

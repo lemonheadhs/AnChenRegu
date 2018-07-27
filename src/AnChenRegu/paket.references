@@ -8,6 +8,8 @@ Microsoft.Extensions.Logging.Console
 Microsoft.Extensions.Logging.Debug
 Microsoft.AspNetCore.Authentication.Cookies
 Microsoft.Extensions.DependencyInjection
+Microsoft.Extensions.Configuration.Json
+Microsoft.Extensions.Options.ConfigurationExtensions
 Giraffe
 Dapper
 Microsoft.Data.SQLite

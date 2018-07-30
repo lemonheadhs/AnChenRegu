@@ -1,4 +1,5 @@
 module AnChenRegu.Handlers
+open System
 open Giraffe
 open Giraffe.ModelBinding
 open Microsoft.AspNetCore.Http
@@ -106,9 +107,32 @@ type Week =
     | Four = 4
     | Five = 5
 
-type MonthWeek = {
-    name: string
-}
+type MonthWeek = { m: Month option; w: Week option }
 
+let weeksNumberOfMonth (d: DateTime) =
+    let dayNum = DateTime.DaysInMonth(d.Year, d.Month)
+    match dayNum with
+    | 28 -> 
+        if DateTime(d.Year, d.Month, 1).DayOfWeek = DayOfWeek.Sunday then
+            4
+        else
+            5
+    | _ -> 5
+
+let parseQueryMonthWeek (ctx: HttpContext) =
+    let m = ctx.TryBindQueryString<MonthWeek>()
+    match m with
+    | Ok { m = M; w = W } ->
+        match M, W with
+        | None, _ -> enum<Month>DateTime.Now.Month, Week.One
+        | Some month, None -> month, Week.One
+        | Some month, Some week ->
+            let firstDayOMonth = DateTime(DateTime.Now.Year, int month, 1)
+            month,
+            if weeksNumberOfMonth firstDayOMonth < (int week) then
+                Week.One
+            else
+                week
+    | Error _ -> enum<Month>DateTime.Now.Month, Week.One
 
 

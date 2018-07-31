@@ -22,6 +22,7 @@ nuget Microsoft.AspNetCore.TestHost
 nuget Dapper
 nuget Microsoft.Data.SQLite
 nuget SqlFrags
+nuget Fable.JsonConverter
 
 group scripts
     source https://api.nuget.org/v3/index.json
@@ -31,6 +32,7 @@ group scripts
     nuget System.Data.SQLite
     nuget Dapper.FastCrud
     nuget SqlFrags
+    nuget Fable.JsonConverter
 group scriptPatch
     source https://api.nuget.org/v3/index.json
     framework: netstandard2.0

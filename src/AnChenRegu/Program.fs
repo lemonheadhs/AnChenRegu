@@ -12,6 +12,7 @@ open Handlers
 open DBAccess
 open CustomTypes
 open Microsoft.Extensions.Configuration
+open Giraffe.Serialization
 
 // ---------------------------------
 // Models
@@ -127,8 +128,14 @@ let configureServices (ctx: WebHostBuilderContext) (services : IServiceCollectio
     services.AddCors()    |> ignore
     services.AddGiraffe() |> ignore
     services.AddOptions() |> ignore
-    services.Configure<DatabaseConfig>("database", ctx.Configuration) |> ignore
+    services.Configure<DatabaseConfig>(ctx.Configuration.GetSection("database")) |> ignore
     services.AddTransient<IConnectionFactory, ConnectionFactory>() |> ignore
+
+    // config serialization so Giraffe and Fable can work together
+    // see: https://safe-stack.github.io/docs/feature-clientserver/#turning-on-fables-json-converter
+    let fableJsonSettings = Newtonsoft.Json.JsonSerializerSettings()
+    fableJsonSettings.Converters.Add(Fable.JsonConverter())
+    services.AddSingleton<IJsonSerializer>(NewtonsoftJsonSerializer fableJsonSettings) |> ignore
 
 let configureLogging (builder : ILoggingBuilder) =
     let filter (l : LogLevel) = l.Equals LogLevel.Error

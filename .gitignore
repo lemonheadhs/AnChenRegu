@@ -455,3 +455,4 @@ bower_components
 ### WebSharper ###
 Scripts/
 /sample.sqlite
+/src/AnChenRegu/init.sqlite

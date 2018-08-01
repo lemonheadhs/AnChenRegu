@@ -24,6 +24,19 @@ nuget Microsoft.Data.SQLite
 nuget SqlFrags
 nuget Fable.JsonConverter
 
+group fable
+    source https://api.nuget.org/v3/index.json
+    storage:none
+
+    nuget Fable.Elmish.HMR
+    nuget FSharp.Core
+    nuget Fable.Core
+    nuget Fable.Elmish.React
+    nuget Fable.Elmish.Browser
+    nuget Fable.Elmish.Debugger
+
+    clitool dotnet-fable
+
 group scripts
     source https://api.nuget.org/v3/index.json
     framework: net472

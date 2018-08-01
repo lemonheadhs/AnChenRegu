@@ -5,6 +5,8 @@
   <ItemGroup>
     <!-- Global to the app -->
     <Compile Include="Global.fs" />
+    <!-- React Big Calendar -->
+    <Compile Include="Calendar/CalendarDefs.fs" />
     <!-- Info -->
     <Compile Include="Info/View.fs" />
     <!-- Counter -->
